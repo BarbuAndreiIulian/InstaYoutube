@@ -12,8 +12,8 @@ import profile from "../assets/profile.jpg";
 
 const Header = () => {
   return (
-    <div className="border shadow-sm ">
-      <div className="flex justify-between items-center  h-16 px-2 max-w-5xl mx-auto  ">
+    <div className="border-b shadow-sm sticky top-0 bg-white z-10">
+      <div className="flex justify-between items-center  h-16 px-2 max-w-5xl mx-auto">
         {/* Left */}
         <div className="flex  ">
           <div className="flex h-full  w-28">
@@ -25,7 +25,7 @@ const Header = () => {
           </div>
         </div>
         {/* Middle */}
-        <div className="hidden sm:flex relative mx-4  ">
+        <div className="hidden sm:flex relative mx-4 w-72 ">
           <div className="absolute flex items-center h-full w-3 ml-2">
             <Image src={search} />
           </div>
@@ -37,7 +37,7 @@ const Header = () => {
         </div>
 
         {/* Right */}
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-5">
           <div className="Btn hidden sm:flex">
             <Image src={home} alt="" />
           </div>
@@ -57,7 +57,7 @@ const Header = () => {
             <div className="Btn">
               <img src={profile.src} alt="" className="rounded-full" />
             </div>
-            <p className="cursor-pointer text-[#0095f6] font-semibold ml-4 whitespace-nowrap">
+            <p className="cursor-pointer text-[#0095f6] font-semibold ml-5 whitespace-nowrap">
               Sign out
             </p>
           </div>
