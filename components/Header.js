@@ -12,17 +12,19 @@ import profile from "../assets/profile.jpg";
 import { signIn, signOut, useSession } from "next-auth/react";
 import { useRecoilState } from "recoil";
 import { modalState } from "../atoms/modalState";
+import { useRouter } from "next/router";
 
 const Header = () => {
   const { data: session } = useSession();
   const [modal, setModal] = useRecoilState(modalState);
+  const router = useRouter();
 
   return (
     <div className="border-b shadow-sm sticky top-0 bg-white z-10">
       <div className="flex justify-between items-center  h-16 px-2 max-w-5xl mx-auto">
         {/* Left */}
         <div className="flex  ">
-          <div className="flex h-full  w-28">
+          <div className="flex h-full  w-28" onClick={() => router.push("/")}>
             <Image src={instagram} />
           </div>
 
