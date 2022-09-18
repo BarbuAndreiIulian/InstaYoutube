@@ -6,15 +6,16 @@ import comment from "../assets/comment.png";
 import message from "../assets/message.png";
 import save from "../assets/save.png";
 import emojy from "../assets/emojy.png";
+import Moment from "react-moment";
 
-const Post = ({ profilePic, username, postPhoto, caption }) => {
+const Post = ({ id, profilePic, username, postPhoto, caption, timestamp }) => {
   return (
     <div className="border rounded-lg my-3">
       {/* Header */}
       <div className="flex items-center p-3 ">
         <div className="flex items-center w-full ">
           <div className="h-8 w-8 mr-3">
-            <img src={profilePic.src} alt="" className="rounded-full" />
+            <img src={profilePic} alt="" className="rounded-full" />
           </div>
           <div className="">
             <p className="font-semibold text-sm">{username}</p>
@@ -27,7 +28,7 @@ const Post = ({ profilePic, username, postPhoto, caption }) => {
       </div>
       {/* Photo */}
       <div className="">
-        <img src={profilePic.src} alt="" />
+        <img src={postPhoto} alt="" />
       </div>
 
       <div className="m-3">
@@ -84,7 +85,9 @@ const Post = ({ profilePic, username, postPhoto, caption }) => {
               <Image src={hearth} />
             </div>
           </div>
-          <p className="text-gray-400 text-xs my-2">2 hours ago</p>
+          <p className="text-gray-400 text-xs my-2">
+            <Moment fromNow>{timestamp?.toDate()}</Moment>
+          </p>
         </div>
 
         {/* BORDER */}

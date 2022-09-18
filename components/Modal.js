@@ -105,20 +105,30 @@ export default function MyModal() {
                     Create New Post
                   </Dialog.Title>
 
-                  <div className="flex items-center w-40 h-40  hover:scale-75 duration-200">
+                  {image ? (
                     <img
-                      src={Media.src}
+                      src={image}
                       alt=""
                       className="max-h-60"
-                      onClick={() => imageRef.current.click()}
+                      onClick={() => setImage("")}
                     />
-                    <input
-                      type="file"
-                      hidden
-                      ref={imageRef}
-                      onChange={addImageToState}
-                    />
-                  </div>
+                  ) : (
+                    <div className="flex items-center w-40 h-40  hover:scale-75 duration-200">
+                      <img
+                        src={Media.src}
+                        alt=""
+                        className="max-h-60"
+                        onClick={() => imageRef.current.click()}
+                      />
+
+                      <input
+                        type="file"
+                        hidden
+                        ref={imageRef}
+                        onChange={addImageToState}
+                      />
+                    </div>
+                  )}
 
                   <div className="mt-0 ">
                     <input

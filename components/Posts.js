@@ -1,34 +1,35 @@
-import React from "react";
+import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
+import React, { useEffect, useState } from "react";
 import profile from "../assets/profile.jpg";
+import { db } from "../firebase";
 import Post from "./Post";
 
 const Posts = () => {
-  const posts = [
-    {
-      profilePic: profile,
-      username: "AndreiBarbu",
-      postPhoto: profile,
-      caption: "Hello from the caption sectionHello from the caption section",
-      id: "123",
-    },
-    {
-      profilePic: profile,
-      username: "AndreiBarbu",
-      postPhoto: profile,
-      caption: "Hello from the caption section",
-      id: "456",
-    },
-  ];
+  const [posts, setPosts] = useState([]);
+
+  useEffect(() => {
+    const unSubscribe = onSnapshot(
+      query(collection(db, "posts"), orderBy("timestamp", "desc")),
+      (snapshot) => {
+        setPosts(snapshot.docs);
+      }
+    );
+    return () => {
+      unSubscribe();
+    };
+  }, [db]);
 
   return (
     <div className="mt-4 mx-1">
       {posts.map((post) => (
         <Post
           key={post.id}
-          profilePic={post.profilePic}
-          username={post.username}
-          postPhoto={post.postPhoto}
-          caption={post.caption}
+          id={post.id}
+          username={post.data().username}
+          profilePic={post.data().profileImg}
+          postPhoto={post.data().image}
+          caption={post.data().caption}
+          timestamp={post.data().timestamp}
         />
       ))}
     </div>
