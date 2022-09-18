@@ -9,7 +9,7 @@ import search from "../assets/search.png";
 import arrowdown from "../assets/arrowdown.png";
 import instagram from "../assets/instagram.png";
 import profile from "../assets/profile.jpg";
-import { useSession } from "next-auth/react";
+import { signIn, signOut, useSession } from "next-auth/react";
 import { useRecoilState } from "recoil";
 import { modalState } from "../atoms/modalState";
 
@@ -66,8 +66,11 @@ const Header = () => {
             <div className="Btn">
               <img src={session?.user?.image} alt="" className="rounded-full" />
             </div>
-            <p className="cursor-pointer text-[#0095f6] font-semibold ml-5 whitespace-nowrap">
-              Sign out
+            <p
+              className="cursor-pointer text-[#0095f6] font-semibold ml-5 whitespace-nowrap"
+              onClick={session ? signOut : signIn}
+            >
+              {session ? "Sign out" : "Log in"}
             </p>
           </div>
         </div>

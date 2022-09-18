@@ -22,13 +22,16 @@ const Stories = () => {
   return (
     <div>
       <div className="flex space-x-4 p-5 bg-white border overflow-x-scroll scrollbar-thin scrollbar-thumb-gray-300 mx-1 rounded-lg  ">
-        <div className="">
-          <Story
-            key={session?.user?.id}
-            username={session?.user?.name}
-            avatar={session?.user?.image}
-          />
-        </div>
+        {session && (
+          <div className="">
+            <Story
+              key={session?.user?.id}
+              username={session?.user?.name}
+              avatar={session?.user?.image}
+            />
+          </div>
+        )}
+
         {stories.map((profile) => (
           <Story
             key={profile.userId}
