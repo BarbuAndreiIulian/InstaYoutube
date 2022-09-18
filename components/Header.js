@@ -10,10 +10,13 @@ import arrowdown from "../assets/arrowdown.png";
 import instagram from "../assets/instagram.png";
 import profile from "../assets/profile.jpg";
 import { useSession } from "next-auth/react";
+import { useRecoilState } from "recoil";
+import { modalState } from "../atoms/modalState";
 
 const Header = () => {
   const { data: session } = useSession();
-  console.log(session);
+  const [modal, setModal] = useRecoilState(modalState);
+
   return (
     <div className="border-b shadow-sm sticky top-0 bg-white z-10">
       <div className="flex justify-between items-center  h-16 px-2 max-w-5xl mx-auto">
@@ -50,7 +53,7 @@ const Header = () => {
               1
             </div>
           </div>
-          <div className="Btn">
+          <div className="Btn" onClick={() => setModal(!modal)}>
             <Image src={upload} alt="" />
           </div>
           <div className="Btn hidden sm:flex">
