@@ -41,8 +41,11 @@ const Header = () => {
           <div className="Btn hidden sm:flex">
             <Image src={home} alt="" />
           </div>
-          <div className="Btn hidden sm:flex">
+          <div className="Btn hidden sm:flex relative">
             <Image src={message} alt="" />
+            <div className="absolute flex -top-1 left-3.5 items-center justify-center bg-red-500 text-white rounded-full w-4 h-4 text-xs">
+              1
+            </div>
           </div>
           <div className="Btn">
             <Image src={upload} alt="" />
