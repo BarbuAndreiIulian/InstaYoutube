@@ -1,14 +1,58 @@
 import Image from "next/image";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import dots from "../assets/dots.png";
 import hearth from "../assets/hearth.png";
+import redhearth from "../assets/redhearth.png";
 import comment from "../assets/comment.png";
 import message from "../assets/message.png";
 import save from "../assets/save.png";
 import emojy from "../assets/emojy.png";
 import Moment from "react-moment";
+import {
+  collection,
+  deleteDoc,
+  doc,
+  onSnapshot,
+  setDoc,
+} from "firebase/firestore";
+import { db } from "../firebase";
+import { useSession } from "next-auth/react";
 
 const Post = ({ id, profilePic, username, postPhoto, caption, timestamp }) => {
+  const { data: session } = useSession();
+  const [likes, setLikes] = useState([]);
+  const [hasLiked, setHasLiked] = useState(false);
+
+  //When like updates in the db update the likes in the app as well
+  useEffect(
+    () =>
+      onSnapshot(collection(db, "posts", id, "likes"), (snapshot) =>
+        setLikes(snapshot.docs)
+      ),
+    [db, id]
+  );
+
+  //Check if user already liked the post
+  useEffect(
+    () =>
+      setHasLiked(
+        likes.findIndex((like) => like.id === session?.user?.uid) !== -1
+      ),
+    [likes]
+  );
+
+  //When clicked once add like
+  //When double clicked delete it from db
+  const likePost = async () => {
+    if (hasLiked) {
+      await deleteDoc(doc(db, "posts", id, "likes", session?.user?.uid));
+    } else {
+      await setDoc(doc(db, "posts", id, "likes", session?.user?.uid), {
+        username: session?.user?.name,
+      });
+    }
+  };
+
   return (
     <div className="border rounded-lg my-3">
       {/* Header */}
@@ -36,8 +80,12 @@ const Post = ({ id, profilePic, username, postPhoto, caption, timestamp }) => {
         <div className="">
           <div className="flex justify-between ">
             <div className="flex space-x-4">
-              <div className="Btn   ">
-                <img src={hearth.src} alt="" />
+              <div className="Btn" onClick={likePost}>
+                {hasLiked ? (
+                  <img src={redhearth.src} alt="" />
+                ) : (
+                  <img src={hearth.src} alt="" />
+                )}
               </div>
               <div className="Btn">
                 <img src={comment.src} alt="" />
@@ -51,7 +99,7 @@ const Post = ({ id, profilePic, username, postPhoto, caption, timestamp }) => {
             </div>
           </div>
           <div className="customfont mt-2">
-            <p>20,761 likes</p>
+            <p>{likes.length} likes</p>
           </div>
         </div>
 
