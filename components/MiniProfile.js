@@ -6,7 +6,7 @@ const MiniProfile = () => {
   const { data: session, status } = useSession();
   return (
     <div className="flex justify-between mt-8">
-      <div className="flex items-center">
+      <div className="flex  items-center">
         <img
           src={session?.user?.image}
           alt=""
