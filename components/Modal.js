@@ -1,12 +1,27 @@
 import { Dialog, Transition } from "@headlessui/react";
-import { Fragment, useState } from "react";
+import { Fragment, useRef, useState } from "react";
 import { useRecoilState } from "recoil";
 import { modalState } from "../atoms/modalState";
 import Media from "../assets/media.png";
 import Image from "next/image";
+import {
+  addDoc,
+  collection,
+  doc,
+  serverTimestamp,
+  updateDoc,
+} from "firebase/firestore";
+import { db, storage } from "../firebase";
+import { useSession } from "next-auth/react";
+import { getDownloadURL, ref, uploadString } from "firebase/storage";
 
 export default function MyModal() {
-  let [isOpen, setIsOpen] = useRecoilState(modalState);
+  const { data: session } = useSession();
+  const [isOpen, setIsOpen] = useRecoilState(modalState);
+  const captionRef = useRef(null);
+  const imageRef = useRef(null);
+  const [image, setImage] = useState("");
+  const [loading, setLoading] = useState(false);
 
   function closeModal() {
     setIsOpen(false);
@@ -15,6 +30,45 @@ export default function MyModal() {
   function openModal() {
     setIsOpen(true);
   }
+  const addImageToState = async (e) => {
+    const reader = new FileReader();
+    if (e.target.files[0]) {
+      reader.readAsDataURL(e.target.files[0]);
+    }
+    reader.onload = (readerEvent) => {
+      setImage(readerEvent.target.result);
+    };
+  };
+
+  const uploadPost = async () => {
+    if (loading) return;
+    setLoading(true);
+
+    //Create post and post it to firebase
+    const docRef = await addDoc(collection(db, "posts"), {
+      profileImg: session?.user?.image,
+      username: session?.user?.name,
+      caption: captionRef.current.value,
+      timestamp: serverTimestamp(),
+    });
+
+    //Declare image path
+    const imageRef = ref(storage, `posts/${docRef.id}/image`);
+
+    //Upload Image to that adress
+    //Then download the image from that adress
+    //Update document with the downloaded image
+    await uploadString(imageRef, image, "data_url").then(async (snaphsot) => {
+      const downloadURL = await getDownloadURL(imageRef);
+      await updateDoc(doc(db, "posts", docRef.id), {
+        image: downloadURL,
+      });
+    });
+
+    setLoading(false);
+    setIsOpen(false);
+    setImage(null);
+  };
 
   return (
     <>
@@ -50,13 +104,27 @@ export default function MyModal() {
                   >
                     Create New Post
                   </Dialog.Title>
+
                   <div className="flex items-center w-40 h-40  hover:scale-75 duration-200">
-                    <img src={Media.src} alt="" className="max-h-60" />
+                    <img
+                      src={Media.src}
+                      alt=""
+                      className="max-h-60"
+                      onClick={() => imageRef.current.click()}
+                    />
+                    <input
+                      type="file"
+                      hidden
+                      ref={imageRef}
+                      onChange={addImageToState}
+                    />
                   </div>
+
                   <div className="mt-0 ">
                     <input
                       className="text-sm text-gray-500 outline-0"
                       placeholder="Please enter a caption..."
+                      ref={captionRef}
                     />
                   </div>
 
@@ -64,9 +132,9 @@ export default function MyModal() {
                     <button
                       type="button"
                       className="inline-flex justify-center rounded-md border border-transparent bg-[#0095f6] px-4 py-2 text-sm font-medium text-white hover:bg-blue-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-                      onClick={closeModal}
+                      onClick={uploadPost}
                     >
-                      Upload Post
+                      {loading ? "Loading" : "Upload Post"}
                     </button>
                   </div>
                 </Dialog.Panel>
