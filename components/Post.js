@@ -3,16 +3,20 @@ import React, { useEffect, useState } from "react";
 import dots from "../assets/dots.png";
 import hearth from "../assets/hearth.png";
 import redhearth from "../assets/redhearth.png";
-import comment from "../assets/comment.png";
+import commentIcon from "../assets/comment.png";
 import message from "../assets/message.png";
 import save from "../assets/save.png";
 import emojy from "../assets/emojy.png";
 import Moment from "react-moment";
 import {
+  addDoc,
   collection,
   deleteDoc,
   doc,
   onSnapshot,
+  orderBy,
+  query,
+  serverTimestamp,
   setDoc,
 } from "firebase/firestore";
 import { db } from "../firebase";
@@ -22,6 +26,8 @@ const Post = ({ id, profilePic, username, postPhoto, caption, timestamp }) => {
   const { data: session } = useSession();
   const [likes, setLikes] = useState([]);
   const [hasLiked, setHasLiked] = useState(false);
+  const [comment, setComment] = useState("");
+  const [comments, setComments] = useState([]);
 
   //When like updates in the db update the likes in the app as well
   useEffect(
@@ -52,6 +58,31 @@ const Post = ({ id, profilePic, username, postPhoto, caption, timestamp }) => {
       });
     }
   };
+
+  //Send comments to db
+  const sendComment = async (e) => {
+    e.preventDefault();
+    const commentToSend = comment;
+    setComment("");
+    await addDoc(collection(db, "posts", id, "comments"), {
+      comment: commentToSend,
+      username: session?.user?.name,
+      timestamp: serverTimestamp(),
+    });
+  };
+
+  //When comments update in db update them in the app as well
+  useEffect(
+    () =>
+      onSnapshot(
+        query(
+          collection(db, "posts", id, "comments"),
+          orderBy("timestamp", "desc")
+        ),
+        (snapshot) => setComments(snapshot.docs)
+      ),
+    [(db, id)]
+  );
 
   return (
     <div className="border rounded-lg my-3">
@@ -88,7 +119,7 @@ const Post = ({ id, profilePic, username, postPhoto, caption, timestamp }) => {
                 )}
               </div>
               <div className="Btn">
-                <img src={comment.src} alt="" />
+                <img src={commentIcon.src} alt="" />
               </div>
               <div className="Btn">
                 <img src={message.src} alt="" />
@@ -108,35 +139,30 @@ const Post = ({ id, profilePic, username, postPhoto, caption, timestamp }) => {
           <p className="customfont mr-2">{username}</p>
           <p className="truncate">{caption}</p>
         </div>
+
+        {/* View all comments */}
+        <p className="text-sm  text-gray-500 mt-1 my-2">
+          View all {comments.length} comments
+        </p>
         {/* Comments */}
-        <div className="">
-          <p className="text-sm  text-gray-500 mt-1 my-2">
-            View all 326 comments
-          </p>
-          <div className="flex justify-between  ">
-            <div className="flex items-center ">
-              <p className="customfont mr-2">{username}</p>
-              <p>You can Like Comment and Post</p>
+        <div className="max-h-24 overflow-y-scroll">
+          {comments.map((comment) => (
+            <div key={comment.id} className="flex justify-between   ">
+              <div className="flex items-center truncate ">
+                <p className="customfont mr-2">{comment.data().username}</p>
+                <p className="truncate mr-2 ">{comment.data().comment}</p>
+              </div>
+              <div className="h-3 w-3 shrink-0">
+                <Image src={hearth} />
+              </div>
             </div>
-            <div className="h-3 w-3">
-              <Image src={hearth} />
-            </div>
-          </div>
-          <div className="flex justify-between   ">
-            <div className="flex items-center truncate ">
-              <p className="customfont mr-2">{username}</p>
-              <p className="truncate mr-2 ">
-                Second Comment here and i'm very very very long
-              </p>
-            </div>
-            <div className="h-3 w-3">
-              <Image src={hearth} />
-            </div>
-          </div>
-          <p className="text-gray-400 text-xs my-2">
-            <Moment fromNow>{timestamp?.toDate()}</Moment>
-          </p>
+          ))}
         </div>
+
+        {/* Caption */}
+        <p className="text-gray-400 text-xs my-2">
+          <Moment fromNow>{timestamp?.toDate()}</Moment>
+        </p>
 
         {/* BORDER */}
         <div className="border-t -mx-3 my-3"></div>
@@ -152,9 +178,16 @@ const Post = ({ id, profilePic, username, postPhoto, caption, timestamp }) => {
               type="text"
               placeholder="Add a comment..."
               className="outline-0 "
+              value={comment}
+              onChange={(e) => setComment(e.target.value)}
             />
           </div>
-          <button className="font-bold text-sm  text-[#0095f6]">Post</button>
+          <button
+            className="font-bold text-sm  text-[#0095f6]"
+            onClick={sendComment}
+          >
+            Post
+          </button>
         </div>
       </div>
     </div>

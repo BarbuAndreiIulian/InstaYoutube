@@ -10,7 +10,7 @@ export default function SignIn({ providers }) {
         <div key={provider.name}>
           <Header />
           <div className="flex flex-col items-center  ">
-            <div className=" flex items-center w-96 h-96">
+            <div className=" flex items-center h-96  w-80 -mt-12">
               <Image src={instagram} alt="" />
             </div>
             <div className="flex justify-center bg-[#0095f6] text-white w-52 p-4 rounded-full  -mt-16">
